@@ -1,0 +1,24 @@
+# Xcode user data
+xcuserdata/
+*.xcuserstate
+
+# Workspace (not using dependency manager)
+*.xcworkspace
+
+# Build folders
+DerivedData/
+build/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+*.tmp
+
+# Archives
+*.xcarchive
+
+# Certificates
+*.p12
+*.mobileprovision

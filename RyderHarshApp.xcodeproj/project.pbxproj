@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		044BCD532F813B21009ECCFD /* GoogleMaps in Frameworks */ = {isa = PBXBuildFile; productRef = 044BCD522F813B21009ECCFD /* GoogleMaps */; };
+		044BCD562F813B5E009ECCFD /* GooglePlaces in Frameworks */ = {isa = PBXBuildFile; productRef = 044BCD552F813B5E009ECCFD /* GooglePlaces */; };
+		044BCD582F813B5E009ECCFD /* GooglePlacesSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 044BCD572F813B5E009ECCFD /* GooglePlacesSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		044BCC462F812925009ECCFD /* RyderHarshApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RyderHarshApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +42,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				044BCD532F813B21009ECCFD /* GoogleMaps in Frameworks */,
+				044BCD562F813B5E009ECCFD /* GooglePlaces in Frameworks */,
+				044BCD582F813B5E009ECCFD /* GooglePlacesSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,6 +55,7 @@
 			isa = PBXGroup;
 			children = (
 				044BCC482F812925009ECCFD /* RyderHarshApp */,
+				044BCC712F812ADA009ECCFD /* Frameworks */,
 				044BCC472F812925009ECCFD /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +66,13 @@
 				044BCC462F812925009ECCFD /* RyderHarshApp.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		044BCC712F812ADA009ECCFD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -78,6 +95,9 @@
 			);
 			name = RyderHarshApp;
 			packageProductDependencies = (
+				044BCD522F813B21009ECCFD /* GoogleMaps */,
+				044BCD552F813B5E009ECCFD /* GooglePlaces */,
+				044BCD572F813B5E009ECCFD /* GooglePlacesSwift */,
 			);
 			productName = RyderHarshApp;
 			productReference = 044BCC462F812925009ECCFD /* RyderHarshApp.app */;
@@ -107,6 +127,10 @@
 			);
 			mainGroup = 044BCC3D2F812925009ECCFD;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				044BCD512F813B21009ECCFD /* XCRemoteSwiftPackageReference "ios-maps-sdk" */,
+				044BCD542F813B5E009ECCFD /* XCRemoteSwiftPackageReference "ios-places-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 044BCC472F812925009ECCFD /* Products */;
 			projectDirPath = "";
@@ -148,11 +172,15 @@
 				DEVELOPMENT_TEAM = 87M7TK5K4U;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RyderHarshApp/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to enable real-time order tracking, improve delivery accuracy, and ensure seamless rider navigation even when the app is running in the background.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "This app requires access to your location even when running in the background to provide continuous rider tracking, accurate delivery updates, and route optimization for a better delivery experience.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app uses your location to show real-time delivery tracking, navigation, and nearby services while you are using the app.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -180,11 +208,15 @@
 				DEVELOPMENT_TEAM = 87M7TK5K4U;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = RyderHarshApp/Info.plist;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to enable real-time order tracking, improve delivery accuracy, and ensure seamless rider navigation even when the app is running in the background.";
+				INFOPLIST_KEY_NSLocationAlwaysUsageDescription = "This app requires access to your location even when running in the background to provide continuous rider tracking, accurate delivery updates, and route optimization for a better delivery experience.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This app uses your location to show real-time delivery tracking, navigation, and nearby services while you are using the app.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -345,6 +377,43 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		044BCD512F813B21009ECCFD /* XCRemoteSwiftPackageReference "ios-maps-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-maps-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.10.0;
+			};
+		};
+		044BCD542F813B5E009ECCFD /* XCRemoteSwiftPackageReference "ios-places-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googlemaps/ios-places-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.10.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		044BCD522F813B21009ECCFD /* GoogleMaps */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 044BCD512F813B21009ECCFD /* XCRemoteSwiftPackageReference "ios-maps-sdk" */;
+			productName = GoogleMaps;
+		};
+		044BCD552F813B5E009ECCFD /* GooglePlaces */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 044BCD542F813B5E009ECCFD /* XCRemoteSwiftPackageReference "ios-places-sdk" */;
+			productName = GooglePlaces;
+		};
+		044BCD572F813B5E009ECCFD /* GooglePlacesSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 044BCD542F813B5E009ECCFD /* XCRemoteSwiftPackageReference "ios-places-sdk" */;
+			productName = GooglePlacesSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 044BCC3E2F812925009ECCFD /* Project object */;
 }

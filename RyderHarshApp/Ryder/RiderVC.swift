@@ -1,196 +1,234 @@
-import UIKit
+//
+//  RiderVC.swift
+//  RyderHarshApp
+//
+//  Created by Harsh on 04/04/26.
+//
+
 import GoogleMaps
 import GooglePlaces
+import UIKit
 
-/// The Main Controller that manages the Map UI, Rider Tracking, and Destination Search.
 final class RiderVC: UIViewController {
-    
+
     // MARK: - Properties
-    
-    /// The custom view containing the Google Map and Search UI
+
     private let contentView = RiderView()
-    
-    /// Array to store search predictions from Google Places
-    private var searchResults: [GMSAutocompletePrediction] = []
+
+    /// Stores autocomplete results
+    private var searchResults: [GMSAutocompleteSuggestion] = []
+
+    /// Session token for grouping autocomplete + place requests (billing optimization)
+    private var sessionToken = GMSAutocompleteSessionToken()
 
     // MARK: - Lifecycle
-    
+
     override func loadView() {
-        // Set our custom programmatic view as the root view
         view = contentView
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Rider Live Tracking"
-        
+
+        print("🟢 RiderVC Loaded")
+
         setupDelegates()
         setupLocationBinding()
-        print("🖥️ [RiderVC] View Loaded. Delegates and Bindings initialized.")
     }
 
-    // MARK: - Setup Methods
-    
+    deinit {
+        print("🔴 RiderVC Deinitialized (No Memory Leak)")
+    }
+
+    // MARK: - Setup
+
     private func setupDelegates() {
         contentView.searchBar.delegate = self
         contentView.resultsTableView.delegate = self
         contentView.resultsTableView.dataSource = self
     }
-    
+
     private func setupLocationBinding() {
-        // Start the location service
+        print("📍 Starting location tracking...")
+
         RiderLocationManager.shared.startTracking()
-        
-        // Listen for real-time location updates from the Manager
+
         RiderLocationManager.shared.onLocationUpdate = { [weak self] location in
-            guard let self = self else { return }
-            
-            // Log for debugging
-            print("📍 [RiderVC] Location Update: \(location.coordinate.latitude), \(location.coordinate.longitude)")
-            
-            // Trigger smooth animation to the new coordinate
+            guard let self else { return }
             self.animateMarker(to: location)
         }
     }
-    
-    // MARK: - Animation Logic
-    
-    /// Smoothly glides the rider's marker and rotates it based on movement direction.
+
+    // MARK: - Map Animation
+
+    /// Smoothly animate rider marker
     private func animateMarker(to location: CLLocation) {
         let coordinate = location.coordinate
-        
-        // 1. Core Animation Transaction for professional smoothness
+
+        print("📍 Updating rider location: \(coordinate.latitude), \(coordinate.longitude)")
+
         CATransaction.begin()
-        CATransaction.setAnimationDuration(2.0) // Glide duration (matches distanceFilter timing)
-        
-        // Update Marker Position
+        CATransaction.setAnimationDuration(2.0)
+
         contentView.bikeMarker.position = coordinate
-        
-        // 2. Update Rotation (Heading)
-        // 'course' gives the direction of travel (0-360 degrees)
+
+        /// Rotate marker based on heading
         if location.course >= 0 {
-            print("🔄 [RiderVC] Rotating Marker to Heading: \(location.course)°")
             contentView.bikeMarker.rotation = location.course
         }
-        
+
         CATransaction.commit()
-        
-        /* OPTIONAL: If you want the camera to always follow the rider:
-         let cameraUpdate = GMSCameraUpdate.setTarget(coordinate)
-         contentView.mapView.animate(with: cameraUpdate)
-        */
-        
-        print("🛵 [RiderVC] Rider Marker Animated successfully.")
+
+        let cameraUpdate = GMSCameraUpdate.setTarget(coordinate)
+        contentView.mapView.animate(with: cameraUpdate)
     }
 
-    // MARK: - Routing Logic
-    
-    /// Fetches and draws the polyline route from Rider to Destination.
+    // MARK: - Route Drawing
+
     private func drawRoute(to destination: CLLocationCoordinate2D) {
-        // Get the last known location of the rider
         guard let riderLocation = RiderLocationManager.shared.currentLocation?.coordinate else {
-            print("⚠️ [RiderVC] Cannot draw route: Rider's current location is missing.")
+            print("⚠️ Rider location missing")
             return
         }
-        
-        print("🛣️ [RiderVC] Requesting route from Directions API...")
-        
+
+        print("🛣️ Fetching route...")
+
         DirectionsManager.shared.fetchRoute(from: riderLocation, to: destination) { [weak self] path in
-            guard let self = self, let path = path else {
-                print("❌ [RiderVC] Failed to retrieve route path.")
+            guard let self, let path else {
+                print("❌ Route fetch failed")
                 return
             }
-            
-            // UI updates must happen on the main thread
+
             DispatchQueue.main.async {
-                print("✨ [RiderVC] Drawing Polyline with \(path.count()) points.")
-                
-                // Set the path to our GMSPolyline object
+                print("✅ Drawing route on map")
+
                 self.contentView.routePolyline.path = path
-                
-                // Fit the map camera to show the entire route
+
                 let bounds = GMSCoordinateBounds(path: path)
-                let update = GMSCameraUpdate.fit(bounds, withPadding: 100.0)
+                let update = GMSCameraUpdate.fit(bounds, withPadding: 100)
                 self.contentView.mapView.animate(with: update)
             }
         }
     }
 }
 
-// MARK: - Search & TableView Extensions
+// MARK: - Search + TableView
 
 extension RiderVC: UISearchBarDelegate, UITableViewDataSource, UITableViewDelegate {
-    
-    // Called as the user types in the search bar
+
+    /// Called when user types in search bar
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.isEmpty {
-            searchResults = []
-            contentView.resultsTableView.isHidden = true
-            contentView.resultsTableView.reloadData()
+
+        guard !searchText.isEmpty else {
+            print("🔍 Search cleared")
+
+            searchResults.removeAll()
+
+            DispatchQueue.main.async {
+                self.contentView.resultsTableView.isHidden = true
+                self.contentView.resultsTableView.reloadData()
+            }
             return
         }
-        
-        print("🔍 [RiderVC] Searching Places for: \(searchText)")
-        
-        PlaceManager.shared.searchPlaces(query: searchText) { [weak self] predictions in
-            guard let self = self else { return }
-            self.searchResults = predictions
-            
+
+        print("🔍 Searching: \(searchText)")
+
+        let request = GMSAutocompleteRequest(query: searchText)
+        request.sessionToken = sessionToken
+
+        GMSPlacesClient.shared().fetchAutocompleteSuggestions(from: request) { [weak self] suggestions, error in
+
+            guard let self else { return }
+
+            if let error {
+                print("❌ Autocomplete error: \(error.localizedDescription)")
+                return
+            }
+
+            self.searchResults = suggestions ?? []
+
             DispatchQueue.main.async {
-                self.contentView.resultsTableView.isHidden = predictions.isEmpty
+                print("📋 Results count: \(self.searchResults.count)")
+
+                self.contentView.resultsTableView.isHidden = self.searchResults.isEmpty
                 self.contentView.resultsTableView.reloadData()
             }
         }
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return searchResults.count
+        searchResults.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let prediction = searchResults[indexPath.row]
-        
-        // Full address string from Google Prediction
-        cell.textLabel?.text = prediction.attributedFullText.string
+        let suggestion = searchResults[indexPath.row]
+
+        /// Display full formatted address
+        cell.textLabel?.text = suggestion.placeSuggestion?.attributedFullText.string
         cell.textLabel?.numberOfLines = 0
-        cell.textLabel?.font = .systemFont(ofSize: 14)
+
         return cell
     }
 
-    // Called when a user selects a destination from the list
+    /// Called when user selects a place
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let prediction = searchResults[indexPath.row]
-        print("🎯 [RiderVC] Selected Destination: \(prediction.attributedPrimaryText.string)")
-        
-        // Fetch detailed coordinates for the selected PlaceID
-        GMSPlacesClient.shared().fetchPlace(fromPlaceID: prediction.placeID, placeFields: [.coordinate, .name], sessionToken: nil) { [weak self] (place, error) in
-            
-            if let error = error {
-                print("❌ [RiderVC] Fetch Place Error: \(error.localizedDescription)")
+
+        let suggestion = searchResults[indexPath.row]
+
+        guard let placeID = suggestion.placeSuggestion?.placeID else {
+            print("❌ Missing placeID")
+            return
+        }
+
+        print("🎯 Selected placeID: \(placeID)")
+
+        let placeProperties = [
+            GMSPlaceProperty.name.rawValue,
+            GMSPlaceProperty.coordinate.rawValue
+        ]
+
+        let request = GMSFetchPlaceRequest(
+            placeID: placeID,
+            placeProperties: placeProperties,
+            sessionToken: sessionToken
+        )
+
+        GMSPlacesClient.shared().fetchPlace(with: request) { [weak self] place, error in
+
+            guard let self else { return }
+
+            if let error {
+                print("❌ Fetch place error: \(error.localizedDescription)")
                 return
             }
-            
-            guard let self = self, let coordinate = place?.coordinate else { return }
-            print("✅ [RiderVC] Destination Coordinates: \(coordinate.latitude), \(coordinate.longitude)")
-            
+
+            guard let coordinate = place?.coordinate else {
+                print("❌ Missing coordinate")
+                return
+            }
+
             DispatchQueue.main.async {
-                // UI Cleanup
+
+                print("📍 Place selected: \(place?.name ?? "Unknown")")
+
+                /// Hide results + update UI
                 self.contentView.resultsTableView.isHidden = true
                 self.contentView.searchBar.text = place?.name
                 self.view.endEditing(true)
-                
-                // Clear billing session and draw the route
-                PlaceManager.shared.clearSession()
+
+                /// Reset session token (VERY IMPORTANT)
+                self.sessionToken = GMSAutocompleteSessionToken()
+
+                /// Draw route
                 self.drawRoute(to: coordinate)
-                
-                // Add a Red Marker at the destination
+
+                /// Add destination marker
                 let marker = GMSMarker(position: coordinate)
                 marker.title = place?.name
-                marker.icon = GMSMarker.markerImage(with: .red)
                 marker.map = self.contentView.mapView
-                
-                print("🏁 [RiderVC] Destination marker set and routing started.")
             }
         }
     }

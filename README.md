@@ -69,9 +69,6 @@ Normally, GPS markers "jump" from one point to another. We fixed this using **In
 ## 🛡️ Setup & Installation
 
 1.  **Clone the Repository:**
-    ```bash
-    git clone [https://github.com/dev1008iharsh/RyderHarshApp.git](https://github.com/dev1008iharsh/RyderHarshApp.git)
-    ```
 2.  **Add API Key:** Open `AppDelegate.swift` and replace `YOUR_API_KEY` with your Google Cloud API Key.
 3.  **Enable Capabilities:** Go to Project Settings -> Signing & Capabilities -> Add **Background Modes** (Select **Location updates**).
 4.  **Permissions:** Ensure `Info.plist` has descriptions for `NSLocationAlwaysAndWhenInUseUsageDescription`.

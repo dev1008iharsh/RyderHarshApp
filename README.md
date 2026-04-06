@@ -1,7 +1,8 @@
 # 🛵 Real-Time Rider Tracking System (Blinkit Architecture)
 
 A premium, production-grade iOS tracking engine built with **Swift** and **UIKit**. This project is designed to solve the complex challenges of real-time logistics, including background persistence, battery optimization, and smooth UI animations.
-
+---
+<img width="1408" height="768" alt="Gemini_Generated_Image_fdyil7fdyil7fdyi_50" src="https://github.com/user-attachments/assets/1093a14c-8d50-43fc-a22e-27d6b5e6a1a2" />
 ---
 
 ## 🌟 Key Features
